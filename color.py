@@ -1,6 +1,6 @@
 import os
 import sys
-
+import cv2
 import kmeans
 
 
@@ -16,7 +16,7 @@ def color_classify(file):
             min = clusters[i]
             minindex = i
     for i in range(0, len(hsv_colors)):
-        if i != minindex and (hsv_colors[i] != [60, 255, 255]).all() and (hsv_colors[i] != [60, 255, 254]).all() and (hsv_colors[i] != [60, 254, 255]).all():
+        if i != minindex and (hsv_colors[i] != [60, 255, 255]).any() and (hsv_colors[i] != [60, 255, 254]).any() and (hsv_colors[i] != [60, 254, 255]).any():
             main_colors.append(hsv_colors[i])
             main_index.append(i)
     # 主色排序
@@ -24,13 +24,17 @@ def color_classify(file):
         temp = main_colors[0]
         main_colors[0] = main_colors[1]
         main_colors[1] = temp
+    # print(main_colors[0], main_colors[1])
     # 判断颜色
     resColor = ""
     for i in range(0, len(main_colors)):
         h = main_colors[i][0]
         s = main_colors[i][1]
         v = main_colors[i][2]
-        if 20 <= h <= 22 and 28 <= s <= 85 and v >= 128:
+        if s <= 10:
+            if resColor.find("白") == -1:
+                resColor += "白"
+        elif 20 <= h <= 22 and 28 <= s <= 85 and v >= 128:
             if resColor.find("黄") == -1:
                 resColor += "淡黄"
         # elif 17 <= h <= 19 and 108 <= s <= 150 and 81 <= v <= 91:
@@ -66,11 +70,11 @@ def color_classify(file):
 if __name__ == '__main__':
     for i in range(1, len(sys.argv)):
         print(color_classify(sys.argv[i]))
-    # # 识别个体
-    # path = "F:\\DataSet\\baseImgs\\1 (1).jpg"
+    # 识别个体
+    # path = "F:\\DataSet\\baseImgs\\1 (42).jpg"
     # print(color_classify(path))
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     # 识别一个种类
     # dirs = ["huangdilaohu1", "huangdilaohu2", "huangdilaohu3", "xuanyouyee5", "xuanyouyee6"]

@@ -8,7 +8,7 @@ def get_main_colors(path):
     # 加载图像
     image = cv.imread(path)
     # 替换图像背景
-    image = locate.run(image)
+    image = locate.replaceBG(image)
     h, w, ch = image.shape
     # 构建图像数据
     data = image.reshape((-1, 3))
@@ -35,7 +35,7 @@ def get_main_colors(path):
     clusters = np.float32(clusters) / float(h * w)
 
     # print("比重", clusters)
-    # hsv_colors = sorted(hsv_colors, key=lambda x:x[2])
+    # # hsv_colors = sorted(hsv_colors, key=lambda x:x[2])
     # print(hsv_colors[0], hsv_colors[1], hsv_colors[2], hsv_colors[3])
     # # 显示聚类后的图像（BGR格式）
     # center = np.uint8(center)
