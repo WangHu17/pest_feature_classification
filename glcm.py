@@ -4,9 +4,13 @@ import locate
 import skimage.feature as feature
 
 
+# 获取图像的 glcm 纹理特征
 def get_glcm(img):
-    img = locate.replaceBG(img)
+    img = locate.replace_bg(img)
+    # 转为灰度图
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # 直方图均衡化
+    # gray = cv2.equalizeHist(gray)
 
     # Param:
     # source image
@@ -22,13 +26,7 @@ def get_glcm(img):
     energy = feature.greycoprops(graycom, 'energy')
     correlation = feature.greycoprops(graycom, 'correlation')
     ASM = feature.greycoprops(graycom, 'ASM')
-    res = []
-    res.append(contrast)
-    res.append(dissimilarity)
-    res.append(homogeneity)
-    res.append(energy)
-    res.append(correlation)
-    res.append(ASM)
+    res = np.array([contrast, dissimilarity, homogeneity, energy, correlation, ASM])
     # print("Contrast: {}".format(contrast))
     # print("Dissimilarity: {}".format(dissimilarity))
     # print("Homogeneity: {}".format(homogeneity))
@@ -40,4 +38,7 @@ def get_glcm(img):
 
 if __name__ == '__main__':
     img = cv2.imread(r"F:\DataSet\testImages\bazidilaohu1#\dakai-11.jpg")
-    get_glcm(img)
+    res = get_glcm(img)
+    print(res)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()

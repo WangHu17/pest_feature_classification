@@ -1,5 +1,4 @@
 import os
-
 import cv2
 import locate
 
@@ -7,7 +6,7 @@ import locate
 # 轮廓逼近
 def get_contour_approx(img):
     # 获取图像轮廓
-    contour = locate.getContour(img)
+    contour = locate.get_contour(img)
     # img = cv2.resize(img, (600, 600))
     # 轮廓长度
     arcLen = cv2.arcLength(contour, True)

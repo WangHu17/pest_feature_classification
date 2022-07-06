@@ -4,11 +4,9 @@ import cv2 as cv
 import locate
 
 
-def get_main_colors(path):
-    # 加载图像
-    image = cv.imread(path)
+def get_main_colors(img):
     # 替换图像背景
-    image = locate.replaceBG(image)
+    image = locate.replace_bg(img)
     h, w, ch = image.shape
     # 构建图像数据
     data = image.reshape((-1, 3))

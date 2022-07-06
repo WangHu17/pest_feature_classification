@@ -5,7 +5,10 @@ import kmeans
 
 
 def color_classify(file):
-    hsv_colors, clusters = kmeans.get_main_colors(file)
+    img = cv2.imread(file)
+    img = cv2.resize(img, (600, 600))
+    cv2.imshow("color", img)
+    hsv_colors, clusters = kmeans.get_main_colors(img)
     main_colors = []
     main_index = []
     min = 1
@@ -71,7 +74,7 @@ if __name__ == '__main__':
     for i in range(1, len(sys.argv)):
         print(color_classify(sys.argv[i]))
     # 识别个体
-    # path = "F:\\DataSet\\baseImgs\\1 (42).jpg"
+    # path = "F:\\DataSet\\baseImgs\\die2.jpg"
     # print(color_classify(path))
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()

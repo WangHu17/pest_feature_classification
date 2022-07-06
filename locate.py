@@ -29,16 +29,22 @@ def handle_black_background_pic(img):
 
 
 # 获取害虫轮廓
-def getContour(img):
-    img = cv2.resize(img, (600, 600))
+def get_contour(img):
     # img为缩放过后的原图,image为二值化之后的黑白图片。
     img, image = sobel.sobel_cal(img, THRESHHOLD)
-    v1 = image[590, 10]
-    v2 = image[590, 590]
+    h, w = image.shape
+    # print(h, w)
+    row1 = int(h-h*0.02)
+    col1 = int(w*0.02)
+    row2 = int(h-h*0.02)
+    col2 = int(w-w*0.02)
+    v1 = image[row1, col1]
+    v2 = image[row2, col2]
+    # print(v1, v2)
     if v1 == 255 and v2 == 255:
         image = handle_black_background_pic(img)
-        v1 = image[590, 10]
-        v2 = image[590, 590]
+        v1 = image[row1, col1]
+        v2 = image[row2, col2]
         if v1 == 255 and v2 == 255:
             cv2.bitwise_not(image, image)
 
@@ -60,10 +66,9 @@ def getContour(img):
 
 
 # 返回替换背景后的害虫图像
-def replaceBG(img):
+def replace_bg(img):
     # 获取图像轮廓
-    contour = getContour(img)
-    img = cv2.resize(img, (600, 600))
+    contour = get_contour(img)
 
     # 替换轮廓外的背景色
     fill_color = [0, 255, 0]
@@ -82,9 +87,10 @@ def replaceBG(img):
 
 
 if __name__ == '__main__':
-    path = "F:\\DataSet\\baseImgs\\1 (43).jpg"
+    path = "F:\\DataSet\\baseImgs\\die2.jpg"
     img = cv2.imread(path)
-    out = replaceBG(img)
+    img = cv2.resize(img, (600, 600))
+    out = replace_bg(img)
     cv2.imshow("img", out)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

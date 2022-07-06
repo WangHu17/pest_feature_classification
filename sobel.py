@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-def fillHole(im_in, threshhold):
+def fill_hole(im_in, threshhold):
     # Threshold.
     # Set values equal to or above 40 to 255.
     # Set values below 40 to 0.
@@ -71,7 +71,7 @@ def sobel_cal(imgs, threshhold):
     dst = cv2.dilate(sobel, kernel)
 
     # 空洞填充
-    out = fillHole(dst, threshhold)
+    out = fill_hole(dst, threshhold)
 
     # c.图像的腐蚀，默认迭代次数
     erosion = cv2.erode(out, kernel)
