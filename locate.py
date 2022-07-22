@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import numpy as np
 import sobel
@@ -23,7 +25,9 @@ def handle_black_background_pic(img):
     res = center[label.flatten()]
     dst = res.reshape(img.shape)
     dst = cv2.cvtColor(dst, cv2.COLOR_BGR2GRAY)
-    th, thres = cv2.threshold(dst, 100, 255, cv2.THRESH_BINARY)
+    # cv2.imshow("dst", dst)
+    th, thres = cv2.threshold(dst, 93, 255, cv2.THRESH_BINARY)
+    # cv2.imshow("thres", thres)
     # thres = sobel.baweraopen(thres, 300)
     return thres
 
@@ -32,6 +36,7 @@ def handle_black_background_pic(img):
 def get_contour(img):
     # img为缩放过后的原图,image为二值化之后的黑白图片。
     img, image = sobel.sobel_cal(img, THRESHHOLD)
+    # cv2.imshow("image", image)
     h, w = image.shape
     # print(h, w)
     row1 = int(h-h*0.02)
@@ -55,13 +60,15 @@ def get_contour(img):
     # contour = cv2.drawContours(img, contours, -1, (0, 255, 0), 2)
 
     # 获取轮廓索引
-    max = 0
-    maxI = -1
-    for i in range(len(contours)):
-        area = cv2.contourArea(contours[i])
-        if area > max:
-            max = area
-            maxI = i
+    max_area = 0
+    maxI = 0
+    # if len(contours) == 0:
+    #     return None
+    for index in range(len(contours)):
+        area = cv2.contourArea(contours[index])
+        if area > max_area:
+            max_area = area
+            maxI = index
     return contours[maxI]
 
 
@@ -69,7 +76,9 @@ def get_contour(img):
 def replace_bg(img):
     # 获取图像轮廓
     contour = get_contour(img)
-
+    # if contour is None:
+    #     print(i)
+    #     return
     # 替换轮廓外的背景色
     fill_color = [0, 255, 0]
     mask_value = 255
@@ -87,10 +96,15 @@ def replace_bg(img):
 
 
 if __name__ == '__main__':
-    path = "F:\\DataSet\\baseImgs\\die2.jpg"
+    path = r"F:\DataSet\svm_training_imgs\4\1 (58).jpg"
+    # for i in os.listdir(path):
+    #     img = cv2.imread(os.path.join(path, i))
+    #     img = cv2.resize(img, (100, 100))
+    #     out = replace_bg(img, i)
+    #     cv2.imshow(i, out)
     img = cv2.imread(path)
-    img = cv2.resize(img, (600, 600))
+    img = cv2.resize(img, (100, 100))
     out = replace_bg(img)
-    cv2.imshow("img", out)
+    # cv2.imshow("img", out)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
