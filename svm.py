@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import pandas as pd
 from sklearn import svm
+import joblib
 import features
 import time
 
@@ -14,13 +15,15 @@ def get_training_data_and_labels(path, label, name1, name2):
         train_labels = []
         img = cv2.imread(os.path.join(path, i))
         img = cv2.resize(img, (200, 200))
-        feature = features.get_gabor(img)
+        feature = features.get_all_features(img)
+        if feature is None:
+            return
         train_data.append(feature)
         train_labels.append(label[0])
         data = pd.DataFrame(train_data)
-        data.to_csv('F:\\DataSet\\svm_training_csv\\' + name1, mode='a', header=None, index=None)
+        data.to_csv('D:\\DataSet\\svm_training_csv\\' + name1, mode='a', header=None, index=None)
         label = pd.DataFrame(train_labels)
-        label.to_csv('F:\\DataSet\\svm_training_csv\\' + name2, mode='a', header=None, index=None)
+        label.to_csv('D:\\DataSet\\svm_training_csv\\' + name2, mode='a', header=None, index=None)
 
 
 # 模型训练
@@ -76,11 +79,12 @@ def svm_predict(img):
     cv2.waitKey(0)
 
 
-if __name__ == '__main__':
-    file1 = r'F:\DataSet\svm_training_csv\train.csv'
-    file2 = r'F:\DataSet\svm_training_csv\trainLabel.csv'
-    file3 = r'F:\DataSet\svm_training_csv\test.csv'
-    file4 = r'F:\DataSet\svm_training_csv\testLabel.csv'
+# 计算特征
+def make_features():
+    file1 = r'D:\DataSet\svm_training_csv\train.csv'
+    file2 = r'D:\DataSet\svm_training_csv\trainLabel.csv'
+    file3 = r'D:\DataSet\svm_training_csv\test.csv'
+    file4 = r'D:\DataSet\svm_training_csv\testLabel.csv'
     if os.path.exists(file1):
         os.remove(file1)
     if os.path.exists(file2):
@@ -90,50 +94,67 @@ if __name__ == '__main__':
     if os.path.exists(file4):
         os.remove(file4)
 
-    all_start = time.time()
-    print('计算训练集特征...')
+    print("开始计算特征")
     start = time.time()
-    train_path = r"F:\DataSet\svm_training_imgs"
+    train_path = r"D:\DataSet\svm_training_imgs1"
     for i in os.listdir(train_path):
         filepath = os.path.join(train_path, i)
         get_training_data_and_labels(filepath, i, 'train.csv', 'trainLabel.csv')
-    end = time.time()
-    minute = (end - start) / 60
-    second = (end - start) % 60
-    print("计算完成，耗时：", minute, "分", second, "秒")
 
-    print('计算测试集特征...')
-    start = time.time()
-    test_path = r"F:\DataSet\svm_test_imgs"
+    test_path = r"D:\DataSet\svm_test_imgs1"
     for j in os.listdir(test_path):
         filepath2 = os.path.join(test_path, j)
         get_training_data_and_labels(filepath2, j, 'test.csv', 'testLabel.csv')
     end = time.time()
     minute = (end - start) / 60
-    second = (end - start) % 60
-    print("计算完成，耗时：", minute, "分", second, "秒")
+    print("计算特征耗时：", minute, "分钟")
 
-    train_data = np.array(pd.read_csv('F:\\DataSet\\svm_training_csv\\train.csv', header=None))
-    train_label = np.array(pd.read_csv('F:\\DataSet\\svm_training_csv\\trainLabel.csv', header=None))
-    test_data = np.array(pd.read_csv('F:\\DataSet\\svm_training_csv\\test.csv', header=None))
-    test_label = np.array(pd.read_csv('F:\\DataSet\\svm_training_csv\\testLabel.csv', header=None))
+
+# 加载特征
+def load_features():
+    train_data = np.array(pd.read_csv('D:\\DataSet\\svm_training_csv\\train.csv', header=None))
+    train_label = np.array(pd.read_csv('D:\\DataSet\\svm_training_csv\\trainLabel.csv', header=None))
+    test_data = np.array(pd.read_csv('D:\\DataSet\\svm_training_csv\\test.csv', header=None))
+    test_label = np.array(pd.read_csv('D:\\DataSet\\svm_training_csv\\testLabel.csv', header=None))
     # train_data = np.array(train_data, dtype='float32')
     # test_data = np.array(test_data, dtype='float32')
     # print(test_data)
     # print(test_label)
     # svm_train(train_data, train_label, test_data, test_label)
+    return train_data, train_label, test_data, test_label
 
-    print('开始训练...')
+
+# 训练
+def train_model(train_data, train_label, test_data, test_label):
+    print("开始训练")
     start = time.time()
-    clf = svm.SVC(kernel='linear', C=1, degree=4)
+    clf = svm.SVC(kernel='linear', C=1)
+    # clf = svm.LinearSVC(max_iter=1000000000)
+    # clf = svm.SVR(kernel='rbf', C=1.0, gamma='auto', degree=3)
     clf.fit(train_data, train_label.ravel())
+    joblib.dump(clf, 'D:\\DataSet\\svm_training_csv\\svm2.joblib')
     end = time.time()
     minute = (end - start) / 60
-    second = (end - start) % 60
-    print("训练耗时：", minute, "分", second, "秒")
+    print("训练耗时：", minute, "分钟")
     print('训练集准确率：', clf.score(train_data, train_label.ravel()))
     print('测试集准确率：', clf.score(test_data, test_label.ravel()))
-    all_end = time.time()
-    minute = (all_end - all_start) / 60
-    second = (all_end - all_start) % 60
-    print("总耗时：", minute, "分", second, "秒")
+
+
+# 预测
+def predict(path):
+    img = cv2.imread(path)
+    if img is None:
+        return '未找到图片'
+    img = cv2.resize(img, (200, 200))
+    feature = features.get_all_features(img)
+    clf = joblib.load("D:\\DataSet\\svm_training_csv\\svm.joblib")
+    res = clf.predict([feature])
+    return res
+
+
+if __name__ == '__main__':
+    # make_features()
+    train_data, train_label, test_data, test_label = load_features()
+    train_model(train_data, train_label, test_data, test_label)
+    # path = r'D:\DataSet\svm_training_imgs\4\1 (57).jpg'
+    # print(predict(path))

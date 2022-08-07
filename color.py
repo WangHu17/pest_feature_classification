@@ -7,7 +7,6 @@ import kmeans
 def color_classify(file):
     img = cv2.imread(file)
     img = cv2.resize(img, (600, 600))
-    cv2.imshow("color", img)
     hsv_colors, clusters = kmeans.get_main_colors(img)
     main_colors = []
     main_index = []

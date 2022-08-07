@@ -62,8 +62,8 @@ def get_contour(img):
     # 获取轮廓索引
     max_area = 0
     maxI = 0
-    # if len(contours) == 0:
-    #     return None
+    if len(contours) == 0:
+        return None
     for index in range(len(contours)):
         area = cv2.contourArea(contours[index])
         if area > max_area:
@@ -72,13 +72,27 @@ def get_contour(img):
     return contours[maxI]
 
 
+# 获取害虫子图像
+def get_pest_img(img):
+    # 获取图像轮廓
+    contour = get_contour(img)
+    if contour is None:
+        print("轮廓获取失败")
+        return None
+    # 截取图片
+    x, y, w, h = cv2.boundingRect(contour)
+    # cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+    img = img[y:y + h, x:x + w]
+    return img
+
+
 # 返回替换背景后的害虫图像
 def replace_bg(img):
     # 获取图像轮廓
     contour = get_contour(img)
-    # if contour is None:
-    #     print(i)
-    #     return
+    if contour is None:
+        print("轮廓获取失败")
+        return None
     # 替换轮廓外的背景色
     fill_color = [0, 255, 0]
     mask_value = 255
