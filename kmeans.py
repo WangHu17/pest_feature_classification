@@ -7,6 +7,8 @@ import locate
 def get_main_colors(img):
     # 替换图像背景
     image = locate.replace_bg(img)
+    if image is None:
+        return None
     h, w, ch = image.shape
     # 构建图像数据
     data = image.reshape((-1, 3))

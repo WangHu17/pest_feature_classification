@@ -8,6 +8,8 @@ def color_classify(file):
     img = cv2.imread(file)
     img = cv2.resize(img, (600, 600))
     hsv_colors, clusters = kmeans.get_main_colors(img)
+    if hsv_colors is None:
+        return '识别失败'
     main_colors = []
     main_index = []
     min = 1

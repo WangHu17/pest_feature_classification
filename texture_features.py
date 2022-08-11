@@ -100,6 +100,8 @@ def get_statistical_features(img):
 def get_glcm(img):
     # img = locate.get_pest_img(img)
     img = locate.replace_bg(img)
+    if img is None:
+        return None
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     res = []
     # 提取 GLCM 特征（对比度、相异性、同质性、能量、相关性、角二阶矩）
@@ -120,6 +122,8 @@ def get_glcm(img):
 # 获取 LBP 特征
 def get_lbp(img):
     img = locate.get_pest_img(img)
+    if img is None:
+        return None
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     """
     'default'：原始的局部二值模式，它是灰度但不是旋转不变的。
@@ -148,7 +152,7 @@ def get_all_features(img):
     # lbp = get_lbp(img)
     glcm = get_glcm(img)
     gabor = get_gabor(img)
-    if gabor is None:
+    if gabor is None or glcm is None:
         return None
 
     features.extend(statistic)

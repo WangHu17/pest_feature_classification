@@ -24,7 +24,8 @@ def get_training_data_and_labels(type, path, label, name1, name2):
         elif type == 'contour':
             feature = contour_features.get_contour_features(img)
         if feature is None:
-            return
+            print(label1, i)
+            continue
         train_data.append(feature)
         train_labels.append(label1)
         data = pd.DataFrame(train_data)
@@ -108,9 +109,9 @@ def predict(path, type):
 
 
 if __name__ == '__main__':
-    train_path = r'F:\DataSet\contour_train_imgs'
-    test_path = r'F:\DataSet\contour_test_imgs'
-    type = 'contour'
+    train_path = r'F:\DataSet\svm_train_imgs'
+    test_path = r'F:\DataSet\svm_test_imgs'
+    type = 'texture'
     make_features(type, train_path, test_path)
     train_data, train_label, test_data, test_label = load_features(type)
     train_model(train_data, train_label, test_data, test_label, type)

@@ -11,7 +11,6 @@ THRESHHOLD = 30
 # 通过聚类获取黑色背景的害虫二值图
 def get_thresh_by_kmeans(img):
     img = cv2.medianBlur(img, 11)
-    # cv2.imshow("模糊", img)
     # 构建图像数据
     data = img.reshape((-1, 3))
     data = np.float32(data)
@@ -19,20 +18,20 @@ def get_thresh_by_kmeans(img):
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
     num_clusters = 2
     ret, label, center = cv2.kmeans(data, num_clusters, None, criteria, num_clusters, cv2.KMEANS_RANDOM_CENTERS)
-    center = center.astype(int)
-    center1 = np.mean(center[0]).astype(int)
-    center2 = np.mean(center[1]).astype(int)
-    max = center1 if center1 > center2 else center2
-    # print("center", center1, center2)
-    # 显示聚类后的图像
+    # 生成聚类后的图像
     center = np.uint8(center)
     res = center[label.flatten()]
     dst = res.reshape(img.shape)
-    dst = cv2.cvtColor(dst, cv2.COLOR_BGR2GRAY)
-    # cv2.imshow("dst", dst)
-    th, thres = cv2.threshold(dst, max-10, 255, cv2.THRESH_BINARY)
+    gray = cv2.cvtColor(dst, cv2.COLOR_BGR2GRAY)
+    # 获取两个灰度值
+    h, w = gray.shape
+    gray1 = gray[1, 1]
+    gray2 = gray[int(w / 2), int(h / 2)]
+    if gray2 == gray1:
+        gray2 = gray[h / 3][w / 2]
+    max = gray2 if gray2 > gray1 else gray1
+    th, thres = cv2.threshold(gray, max - 1, 255, cv2.THRESH_BINARY)
     # cv2.imshow("thres", thres)
-    # thres = sobel.baweraopen(thres, 300)
     return thres
 
 
@@ -55,6 +54,7 @@ def get_contour(img):
     max_area = 0
     maxI = 0
     if len(contours) == 0:
+        print("获取轮廓失败")
         return None
     for index in range(len(contours)):
         area = cv2.contourArea(contours[index])
@@ -71,10 +71,10 @@ def get_contour1(img, i):
     # cv2.imshow("image", image)
     h, w = image.shape
     # print(h, w)
-    row1 = int(h-h*0.02)
-    col1 = int(w*0.02)
-    row2 = int(h-h*0.02)
-    col2 = int(w-w*0.02)
+    row1 = int(h - h * 0.02)
+    col1 = int(w * 0.02)
+    row2 = int(h - h * 0.02)
+    col2 = int(w - w * 0.02)
     v1 = image[row1, col1]
     v2 = image[row2, col2]
     # print(v1, v2)
@@ -110,7 +110,6 @@ def get_pest_img(img):
     # 获取图像轮廓
     contour = get_contour(img)
     if contour is None:
-        print("轮廓获取失败")
         return None
     # 截取图片
     x, y, w, h = cv2.boundingRect(contour)
@@ -124,7 +123,6 @@ def replace_bg(img):
     # 获取图像轮廓
     contour = get_contour(img)
     if contour is None:
-        print("轮廓获取失败")
         return None
     # 替换轮廓外的背景色
     fill_color = [0, 255, 0]
@@ -137,19 +135,25 @@ def replace_bg(img):
     # 截取图片
     x, y, w, h = cv2.boundingRect(contour)
     # cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-    img = img[y:y+h, x:x+w]
+    img = img[y:y + h, x:x + w]
 
     return img
 
 
 if __name__ == '__main__':
-    path = r"F:\DataSet\svm_training_imgs\9"
+    path = r"F:\DataSet\svm_train_imgs\01"
+    # img = cv2.imread(path)
+    # img = cv2.resize(img, (400, 400))
+    # img = get_pest_img(img)
     for i in os.listdir(path):
         img = cv2.imread(os.path.join(path, i))
         img = cv2.resize(img, (400, 400))
-        contour = get_contour(img)
-        contourImg = cv2.drawContours(img, contour, -1, (0, 255, 0), 2)
-        cv2.imshow(i, contourImg)
+        img = get_pest_img(img)
+        if img is None:
+            print(i)
+            continue
+        # contourImg = cv2.drawContours(img, contour, -1, (0, 255, 0), 2)
+        cv2.imshow(i, img)
     # img = cv2.imread(path)
     # img = cv2.resize(img, (400, 400))
     # out = get_contour(img)
