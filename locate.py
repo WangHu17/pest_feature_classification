@@ -17,26 +17,21 @@ def get_thresh_by_kmeans(img):
     # 图像聚类
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
     num_clusters = 2
-    ret, label, center = cv2.kmeans(data, num_clusters, None, criteria, num_clusters, cv2.KMEANS_RANDOM_CENTERS)
+    ret, label, center = cv2.kmeans(data, num_clusters, None, criteria, 5, cv2.KMEANS_RANDOM_CENTERS)
     # 生成聚类后的图像
     center = np.uint8(center)
     res = center[label.flatten()]
     dst = res.reshape(img.shape)
     gray = cv2.cvtColor(dst, cv2.COLOR_BGR2GRAY)
-    # 获取两个灰度值
-    h, w = gray.shape
-    gray1 = gray[1, 1]
-    gray2 = gray[int(w / 2), int(h / 2)]
-    if gray2 == gray1:
-        gray2 = gray[h / 3][w / 2]
-    max = gray2 if gray2 > gray1 else gray1
-    th, thres = cv2.threshold(gray, max - 1, 255, cv2.THRESH_BINARY)
+    # 获取灰度均值
+    threshold = int(np.mean(gray)) + 1
+    th, thres = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
     # cv2.imshow("thres", thres)
     return thres
 
 
 # 通过聚类获取害虫轮廓
-def get_contour(img):
+def get_contour1(img):
     image = get_thresh_by_kmeans(img)
     h, w = image.shape
     row1 = int(h - h * 0.02)
@@ -65,37 +60,44 @@ def get_contour(img):
 
 
 # 获取害虫轮廓
-def get_contour1(img, i):
-    # img为原图,image为二值化之后的黑白图片。
-    img, image = sobel.sobel_cal(img, THRESHHOLD)
-    # cv2.imshow("image", image)
-    h, w = image.shape
+def get_contour(img):
+    h = img.shape[0]
+    w = img.shape[1]
     # print(h, w)
     row1 = int(h - h * 0.02)
     col1 = int(w * 0.02)
     row2 = int(h - h * 0.02)
     col2 = int(w - w * 0.02)
-    v1 = image[row1, col1]
-    v2 = image[row2, col2]
-    # print(v1, v2)
-    if v1 == 255 and v2 == 255:
-        image = get_thresh_by_kmeans(img)
-        v1 = image[row1, col1]
-        v2 = image[row2, col2]
+    val1 = int(np.mean(img[1, 1]))
+    val2 = int(np.mean(img[h-1, 1]))
+    if val1 < 40 and val2 < 40:
+        thresh = get_thresh_by_kmeans(img)
+    else:
+        # thresh为二值化之后的黑白图片。
+        thresh = sobel.sobel_cal(img, THRESHHOLD)
+        # cv2.imshow("image", image)
+        v1 = thresh[row1, col1]
+        v2 = thresh[row2, col2]
+        # print(v1, v2)
         if v1 == 255 and v2 == 255:
-            cv2.bitwise_not(image, image)
+            thresh = get_thresh_by_kmeans(img)
+    v1 = thresh[row1, col1]
+    v2 = thresh[row2, col2]
+    if v1 == 255 and v2 == 255:
+        cv2.bitwise_not(thresh, thresh)
 
-    thresh = cv2.GaussianBlur(image, (5, 5), 0)
+    thresh = cv2.GaussianBlur(thresh, (5, 5), 0)
     # cv2.imshow("thresh ", thresh)
 
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contour = cv2.drawContours(img, contours, -1, (0, 255, 0), 2)
-    cv2.imshow(i, contour)
+    # contour = cv2.drawContours(img, contours, -1, (0, 255, 0), 2)
+    # cv2.imshow(i, contour)
 
     # 获取轮廓索引
     max_area = 0
     maxI = 0
     if len(contours) == 0:
+        print('获取轮廓失败')
         return None
     for index in range(len(contours)):
         area = cv2.contourArea(contours[index])
@@ -141,22 +143,26 @@ def replace_bg(img):
 
 
 if __name__ == '__main__':
-    path = r"F:\DataSet\svm_train_imgs\01"
+    path = r"F:\DataSet\svm_train_imgs\14"
     # img = cv2.imread(path)
     # img = cv2.resize(img, (400, 400))
     # img = get_pest_img(img)
     for i in os.listdir(path):
         img = cv2.imread(os.path.join(path, i))
         img = cv2.resize(img, (400, 400))
-        img = get_pest_img(img)
-        if img is None:
-            print(i)
-            continue
+        contour = get_contour(img)
+        contourImg = cv2.drawContours(img, contour, -1, (0, 255, 0), 2)
+        cv2.imshow(i, contourImg)
+        cv2.waitKey(0)
+        cv2.destroyWindow(i)
+        # if img is None:
+        #     print(i)
+        #     continue
         # contourImg = cv2.drawContours(img, contour, -1, (0, 255, 0), 2)
-        cv2.imshow(i, img)
+        # cv2.imshow(i, img)
     # img = cv2.imread(path)
     # img = cv2.resize(img, (400, 400))
     # out = get_contour(img)
     # cv2.imshow("img", out)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()

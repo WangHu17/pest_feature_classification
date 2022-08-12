@@ -82,4 +82,4 @@ def sobel_cal(imgs, threshhold):
     # 去除小的斑点
     dst = baweraopen(dst, 300)
 
-    return imgs, dst
+    return dst
