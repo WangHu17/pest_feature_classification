@@ -101,7 +101,7 @@ def predict(path, type):
     elif type == 'contour':
         feature = contour_features.get_contour_features(img)
     if feature is None:
-        return '识别失败'
+        return '特征获取失败'
     clf = joblib.load('F:\\DataSet\\svm_training_csv\\' + type + '.joblib')
     res = clf.predict([feature])
     return res

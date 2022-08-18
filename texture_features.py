@@ -150,14 +150,14 @@ def get_all_features(img):
     features = []
     statistic = get_statistical_features(img)
     # lbp = get_lbp(img)
-    glcm = get_glcm(img)
+    # glcm = get_glcm(img)
     gabor = get_gabor(img)
-    if gabor is None or glcm is None:
+    if gabor is None:
         return None
 
     features.extend(statistic)
     # features.extend(lbp)
-    features.extend(glcm)
+    # features.extend(glcm)
     features.extend(gabor)
 
     # features = np.array(features)
