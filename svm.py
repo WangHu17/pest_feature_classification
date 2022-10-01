@@ -102,7 +102,7 @@ def predict(path, type):
         feature = contour_features.get_contour_features(img)
     if feature is None:
         return '特征获取失败'
-    clf = joblib.load('F:\\DataSet\\svm_training_csv\\' + type + '.joblib')
+    clf = joblib.load('D:\\PestLib\\pest-feature-classification\\joblib\\' + type + '.joblib')
     res = clf.predict([feature])
     return res
 
