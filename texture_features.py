@@ -166,13 +166,13 @@ def get_all_features(img):
 
 
 if __name__ == '__main__':
-    img = cv2.imread(r"D:\DataSet\svm_training_imgs\1\1 (2).jpg")
+    img = cv2.imread(r"F:\DataSet\testImages\biancie#\1 (18).jpg")
     img = cv2.resize(img, (200, 200))
     # img = locate.replace_bg(img)
     # cv2.imshow("img", img)
     # res = get_features(img, "1")
     # print(res)
-    get_glcm(img)
-    # print(res)
+    res = get_glcm(img)
+    print(res)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

@@ -24,6 +24,7 @@ def get_main_colors(img):
     hsv_colors = []
     for i in range(num_clusters):
         color = np.uint8([[center[i]]])
+        # print(color)
         hsv_color = cv.cvtColor(color, cv.COLOR_BGR2HSV)[0][0]
         hsv_colors.append(hsv_color)
 
@@ -35,16 +36,22 @@ def get_main_colors(img):
     clusters = np.float32(clusters) / float(h * w)
 
     # print("比重", clusters)
-    # # hsv_colors = sorted(hsv_colors, key=lambda x:x[2])
+    # hsv_colors = sorted(hsv_colors, key=lambda x:x[2])
     # print(hsv_colors[0], hsv_colors[1], hsv_colors[2], hsv_colors[3])
-    # # 显示聚类后的图像（BGR格式）
+    # 显示聚类后的图像（BGR格式）
     # center = np.uint8(center)
     # res = center[label.flatten()]
     # dst = res.reshape(image.shape)
     # cv.imshow("img", dst)
-    # # 生成主色彩条形卡片
+    # cv.imwrite(r"F:\imwrite_imgs\kmeans.jpg", dst)
+    # HSV格式
+    # hsv = cv.cvtColor(dst, cv.COLOR_BGR2HSV)
+    # cv.imshow("hsv", hsv)
+    # cv.imwrite(r"F:\imwrite_imgs\hsv.jpg", hsv)
+
+    # 生成主色彩条形卡片
     # card = np.zeros((50, w, 3), dtype=np.uint8)
-    # # 绘制主色卡
+    # 绘制主色卡（BGR格式）
     # center = np.int32(center)
     # x_offset = 0
     # for i in range(num_clusters):
@@ -53,8 +60,22 @@ def get_main_colors(img):
     #     g = int(center[i][1])
     #     r = int(center[i][2])
     #     cv.rectangle(card, (x_offset, 0), (x_offset + dx, 50), (b, g, r), -1)
-    #     # print(r, ' ', g, ' ', b)
-    #     x_offset += dx
-    # cv.imshow("color", card)
+        # print(r, ' ', g, ' ', b)
+        # x_offset += dx
+    # cv.imshow("bgr_card", card)
+    # cv.imwrite(r"F:\imwrite_imgs\bgr_card.jpg", card)
+    # HSV格式的card
+    # card = cv.cvtColor(card, cv.COLOR_BGR2HSV)
+    # cv.imshow("hsv_card", card)
+    # cv.imwrite(r"F:\imwrite_imgs\hsv_card.jpg", card)
 
     return hsv_colors, clusters
+
+
+if __name__ == '__main__':
+    path = r'F:\DataSet\testImages\ganlanyee1#\1 (120).jpg'
+    path1 = r'F:\DataSet\testImages\bazidilaohu1#\sanjiao1-41.jpg'
+    img = cv.imread(path1)
+    img = cv.resize(img, (200, 200))
+    get_main_colors(img)
+    cv.waitKey(0)
