@@ -23,7 +23,7 @@ def texture_classify(path):
     elif res == '6':
         return '愧尺蠖'
     elif res == '7':
-        return '六点天蛾'
+        return '栗六点天蛾'
     elif res == '8':
         return '棉铃虫'
     elif res == '9':

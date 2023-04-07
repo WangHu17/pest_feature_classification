@@ -17,12 +17,12 @@ def get_training_data_and_labels(type, path, label, name1, name2):
         train_data = []
         train_labels = []
         img = cv2.imread(os.path.join(path, i))
-        img = cv2.resize(img, (200, 200))
+        img = cv2.resize(img, (400, 400))
         feature = None
         if type == 'texture':
             feature = texture_features.get_all_features(img)
         elif type == 'contour':
-            feature = contour_features.get_contour_features(img)
+            feature = contour_features.get_contour_features1(img)
         if feature is None:
             print(label1, i)
             continue
@@ -94,12 +94,12 @@ def predict(path, type):
     img = cv2.imread(path)
     if img is None:
         return '未找到图片'
-    img = cv2.resize(img, (200, 200))
+    img = cv2.resize(img, (400, 400))
     feature = None
     if type == 'texture':
         feature = texture_features.get_all_features(img)
     elif type == 'contour':
-        feature = contour_features.get_contour_features(img)
+        feature = contour_features.get_contour_features1(img)
     if feature is None:
         return '特征获取失败'
     clf = joblib.load('D:\\PestLib\\pest-feature-classification\\joblib\\' + type + '.joblib')
@@ -121,4 +121,10 @@ if __name__ == '__main__':
     训练耗时： 0.7903028845787048 分钟
     训练集准确率： 0.9332579185520362
     测试集准确率： 0.869281045751634
+    -----------------------------------
+    计算特征耗时： 3.042960019906362 分钟
+    开始训练
+    训练耗时： 0.2812762459119161 分钟
+    训练集准确率： 0.9434389140271493
+    测试集准确率： 0.934640522875817
     '''

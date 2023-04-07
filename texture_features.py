@@ -1,3 +1,5 @@
+import os
+
 import cv2
 import numpy as np
 import pylab as pl
@@ -18,6 +20,14 @@ def build_filters():
             kern = cv2.getGaborKernel((ksize[K], ksize[K]), 1.0, theta[i], lamda, 0.5, 0, ktype=cv2.CV_32F)
             kern /= 1.5 * kern.sum()
             filters.append(kern)
+
+    # 用于绘制滤波器
+    # pl.figure(1)
+    # for temp in range(len(filters)):
+    #     pl.subplot(4, 5, temp + 1)
+    #     pl.imshow(filters[temp])
+    # # pl.savefig(r"F:\imwrite_imgs\gabor.jpg")
+    # pl.show()
     return filters
 
 
@@ -45,14 +55,14 @@ def get_gabor(img):
         # matrix.append(np.array(gabor))
         gabor = gabor.flatten()
 
-        # sums = np.sum(gabor)  # 总和
+        # sum = np.sum(gabor)  # 总和
         mean = np.mean(gabor)  # 均值
-        std = np.std(gabor)  # 标准差
         var = np.var(gabor)  # 方差
-        # corr = np.corrcoef(gabor)  # 相关系数
+        std = np.std(gabor)  # 标准差
         cov = np.cov(gabor)  # 协方差
         skewness = np.mean((gabor - mean) ** 3)  # 偏度
         # kurtosis = np.mean((gabor - mean) ** 4) / pow(var, 2)  # 峰度
+        # corr = np.corrcoef(gabor)  # 相关系数
 
         # res.append(sums)
         # res.append(mean)
@@ -63,10 +73,12 @@ def get_gabor(img):
         res.append(skewness)
         # res.append(kurtosis)
 
+    # 用于绘制滤波效果
     # pl.figure(2)
     # for temp in range(len(matrix)):
     #     pl.subplot(4, 5, temp + 1)
     #     pl.imshow(matrix[temp], cmap='gray')
+    # # pl.savefig(r"F:\imwrite_imgs\gabor1.jpg")
     # pl.show()
 
     return res
@@ -76,7 +88,7 @@ def get_gabor(img):
 def get_statistical_features(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     array = gray.flatten()
-    # sums = np.sum(array)  # 总和
+    # sum = np.sum(array)  # 总和
     mean = np.mean(array)  # 均值
     # var = np.var(array)  # 方差
     std = np.std(array)  # 标准差
@@ -84,6 +96,7 @@ def get_statistical_features(img):
     skewness = np.mean((array - mean) ** 3)  # 偏度
     # kurtosis = np.mean((array - mean) ** 4) / pow(var, 2)  # 峰度
     # corr = np.corrcoef(array)  # 相关系数
+
     res = []
     # res.append(sums)
     res.append(mean)
@@ -121,10 +134,12 @@ def get_glcm(img):
 
 # 获取 LBP 特征
 def get_lbp(img):
-    img = locate.get_pest_img(img)
+    img = locate.replace_bg(img)
     if img is None:
         return None
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # cv2.imshow("img", gray)
+    # cv2.imwrite(r"F:\imwrite_imgs\lbp1.jpg", gray)
     """
     'default'：原始的局部二值模式，它是灰度但不是旋转不变的。
     'ror'：扩展灰度和旋转不变的默认实现。
@@ -167,12 +182,10 @@ def get_all_features(img):
 
 if __name__ == '__main__':
     img = cv2.imread(r"F:\DataSet\testImages\biancie#\1 (18).jpg")
-    img = cv2.resize(img, (200, 200))
-    # img = locate.replace_bg(img)
-    # cv2.imshow("img", img)
-    # res = get_features(img, "1")
-    # print(res)
-    res = get_glcm(img)
-    print(res)
+    path = r"F:\imwrite_imgs\img"
+    for i in os.listdir(path):
+        img = cv2.imread(os.path.join(path, i))
+        img = cv2.resize(img, (200, 200))
+        res = get_lbp(img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

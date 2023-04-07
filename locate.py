@@ -97,9 +97,9 @@ def get_contour(img):
     # cv2.imshow("thresh ", thresh)
 
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    # contour = cv2.drawContours(img, contours, -1, (0, 0, 255), 2)
+    # contour = cv2.drawContours(img, contours, -1, (0, 255, 0), 2)
     # cv2.imshow("contour", contour)
-    # cv2.imwrite(r"F:\imwrite_imgs\contour1.jpg", contour)
+    # cv2.imwrite(r"F:\imwrite_imgs\baieContour.jpg", contour)
 
     # 获取轮廓索引
     max_area = 0
@@ -135,7 +135,8 @@ def replace_bg(img):
     if contour is None:
         return None
     # 替换轮廓外的背景色
-    fill_color = [120, 200, 70]
+    # fill_color = [120, 200, 70]
+    fill_color = [0, 255, 0]
     mask_value = 255
     mask = np.zeros(img.shape[:-1]).astype(np.uint8)
     cv2.fillPoly(mask, [contour], mask_value)
@@ -180,7 +181,7 @@ if __name__ == '__main__':
     img = cv2.resize(img, (200, 200))
     # out = get_contour(img)
     out = replace_bg(img)
-    # cv2.imshow("img", out)
+    cv2.imshow("img", out)
     # cv2.imwrite(r"F:\imwrite_imgs\out1.jpg", out)
     cv2.waitKey(0)
     # cv2.destroyAllWindows()

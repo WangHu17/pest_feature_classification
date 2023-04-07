@@ -2,11 +2,12 @@ import os
 import sys
 import cv2
 import kmeans
+# import time
 
 
 def color_classify(file):
     img = cv2.imread(file)
-    img = cv2.resize(img, (600, 600))
+    img = cv2.resize(img, (400, 400))
     hsv_colors, clusters = kmeans.get_main_colors(img)
     if hsv_colors is None:
         return '识别失败'
@@ -102,7 +103,9 @@ if __name__ == '__main__':
     #     os.rename(filePath, newName)
 
     # 识别所有种类
-    # root = "F:\\DataSet\\baseImages"
+    # print("程序正在运行...")
+    # T1 = time.time()
+    # root = "F:\\DataSet\\testImages"
     # dirs = os.listdir(root)
     # for dir in dirs:
     #     path = root + "\\" + dir
@@ -123,3 +126,5 @@ if __name__ == '__main__':
     #         resColor = color_classify(filePath)
     #         newName = root + "\\" + dir + "\\" + resColor + str(index) + ".jpg"
     #         os.rename(filePath, newName)
+    # T2 = time.time()
+    # print('程序运行时间为: {:.2f}秒'.format(T2 - T1))
